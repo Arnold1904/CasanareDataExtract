@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# IDE
+.vscode/
+.idea/
+
+# QGIS
+*.qgs~
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup

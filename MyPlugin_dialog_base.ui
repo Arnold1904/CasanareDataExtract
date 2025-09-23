@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dialog</class>
+ <widget class="QDialog" name="dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>614</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Casanare Data Extract</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_main" stretch="1,0">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_top" stretch="2,0,1">
+       <item>
+        <widget class="QLabel" name="label_map">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap></pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_controls">
+         <!-- 1. Coordenadas -->
+         <item>
+          <widget class="QLabel" name="label_coords">
+           <property name="text">
+            <string>Coordenadas: </string>
+           </property>
+          </widget>
+         </item>
+         
+         <!-- 2. Espacio vertical -->
+         <item>
+          <spacer name="verticalSpacer_1">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         
+         <!-- 3. Variable -->
+         <item>
+          <widget class="QLabel" name="label_variable">
+           <property name="text">
+            <string>Variable:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="combo_variable">
+           <property name="toolTip">
+            <string>Variable a graficar</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>Precipitación</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Temperatura mínima</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Temperatura máxima</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Evapotranspiración</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         
+         <!-- 4. Años -->
+         <item>
+          <widget class="QLabel" name="label_years">
+           <property name="text">
+            <string>Rango de años:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_years">
+           <item>
+            <widget class="QLabel" name="label_desde">
+             <property name="text">
+              <string>Desde:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="combo_anio_inicio">
+             <property name="toolTip">
+              <string>Año inicial</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_hasta">
+             <property name="text">
+              <string>Hasta:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="combo_anio_fin">
+             <property name="toolTip">
+              <string>Año final</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         
+         <!-- 5. Espacio vertical -->
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         
+         <!-- 6. Botón exportar CSV -->
+         <item>
+          <widget class="QPushButton" name="pushButton_exportCsv">
+           <property name="text">
+            <string>Exportar CSV</string>
+           </property>
+          </widget>
+         </item>
+         <!-- 7. Botón exportar Excel -->
+         <item>
+          <widget class="QPushButton" name="pushButton_exportExcel">
+           <property name="text">
+            <string>Exportar Excel</string>
+           </property>
+          </widget>
+         </item>
+         
+         <!-- 7. Botón exportar imagen PNG -->
+         <item>
+          <widget class="QPushButton" name="pushButton_exportPng">
+           <property name="text">
+            <string>Exportar imagen PNG</string>
+           </property>
+          </widget>
+         </item>
+         <!-- 8. Botón exportar PDF -->
+         <item>
+          <widget class="QPushButton" name="pushButton_exportPdf">
+           <property name="text">
+            <string>Exportar PDF</string>
+           </property>
+          </widget>
+         </item>
+         
+         <!-- Separador -->
+         <item>
+          <spacer name="horizontalSpacer_info">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         
+         <!-- 9. Botón de Información -->
+         <item>
+          <widget class="QPushButton" name="pushButton_info">
+           <property name="text">
+            <string>ℹ️ Información</string>
+           </property>
+           <property name="toolTip">
+            <string>Mostrar información sobre el plugin y los datos</string>
+           </property>
+           <property name="styleSheet">
+            <string>QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #45a049;
+}
+QPushButton:pressed {
+    background-color: #3d8b40;
+}</string>
+           </property>
+          </widget>
+         </item>
+         
+         <!-- Área de gráfica -->
+         <item>
+          <widget class="QLabel" name="label_grafica">
+           <property name="text">
+            <string>Gráfica aquí</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>400</width>
+             <height>250</height>
+            </size>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::Box</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         
+         <!-- Espacio final -->
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
