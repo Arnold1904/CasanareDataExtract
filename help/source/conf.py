@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'CasanareDataExtract'
-copyright = u'2025, Arnold Mesa'
+copyright = u'2025, Universidad Internacional del Trópico Americano - Unitrópico'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -179,7 +179,7 @@ htmlhelp_basename = 'TemplateClassdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'CasanareDataExtract.tex', u'CasanareDataExtract Documentation',
-   u'Arnold Mesa', 'manual'),
+   u'A. J. Mesa Valcárcel, C. L. Camargo Pinilla, I. Narváez Ortiz', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -212,5 +212,5 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'CasanareDataExtract', u'CasanareDataExtract Documentation',
-     [u'Arnold Mesa'], 1)
+     [u'A. J. Mesa Valcárcel, C. L. Camargo Pinilla, I. Narváez Ortiz'], 1)
 ]

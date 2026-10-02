@@ -1,5 +1,5 @@
 # coding=utf-8
-"""Dialog test.
+"""Pruebas de las funciones de datos (no requieren QGIS ni conexión).
 
 .. note:: This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -8,48 +8,56 @@
 
 """
 
-__author__ = 'arnoldjulianmesa@gmail.com'
-__date__ = '2025-06-18'
-__copyright__ = 'Copyright 2025, Arnold Mesa'
+__author__ = 'ingsistemas@unitropico.edu.co'
+__date__ = '2026-10-02'
+__copyright__ = 'Copyright 2025, Universidad Internacional del Trópico Americano - Unitrópico'
 
+import os
+import sys
 import unittest
 
-from qgis.PyQt.QtGui import QDialogButtonBox, QDialog
+import numpy as np
 
-from MyPlugin_dialog import MyPlugin1Dialog
-
-from utilities import get_qgis_app
-QGIS_APP = get_qgis_app()
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import data_manager as dm  # noqa: E402
 
 
-class MyPlugin1DialogTest(unittest.TestCase):
-    """Test dialog works."""
+class DataManagerTest(unittest.TestCase):
+    """Pruebas de fechas, grilla, máscara y ETP."""
 
-    def setUp(self):
-        """Runs before each test."""
-        self.dialog = MyPlugin1Dialog(None)
+    def test_fechas_mensuales(self):
+        fechas = dm.fechas()
+        self.assertEqual(len(fechas), 504)
+        etiquetas = [f.strftime('%Y-%m') for f in fechas]
+        self.assertEqual(len(set(etiquetas)), 504)
+        self.assertEqual(etiquetas[:3], ['1981-01', '1981-02', '1981-03'])
+        self.assertEqual(etiquetas[-1], '2022-12')
 
-    def tearDown(self):
-        """Runs after each test."""
-        self.dialog = None
+    def test_decadas(self):
+        self.assertEqual(dm.decada(1981), '1980-1989')
+        self.assertEqual(dm.decada(2022), '2020-2024')
 
-    def test_dialog_ok(self):
-        """Test we can click OK."""
+    def test_coordenadas(self):
+        celda = dm.coordenadas_a_celda(-72.5, 5.8)
+        self.assertEqual(celda, (13, 15))
+        lon, lat = dm.celda_a_coordenadas(*celda)
+        self.assertAlmostEqual(lon, -72.4791667, places=5)
+        self.assertAlmostEqual(lat, 5.8125, places=5)
+        self.assertIsNone(dm.coordenadas_a_celda(-75.0, 5.0))
 
-        button = self.dialog.button_box.button(QDialogButtonBox.Ok)
-        button.click()
-        result = self.dialog.result()
-        self.assertEqual(result, QDialog.Accepted)
+    def test_mascara(self):
+        mascara = dm.mascara()
+        self.assertEqual(mascara.shape, (dm.FILAS, dm.COLUMNAS))
+        self.assertEqual(int(mascara.sum()), 2346)
 
-    def test_dialog_cancel(self):
-        """Test we can click cancel."""
-        button = self.dialog.button_box.button(QDialogButtonBox.Cancel)
-        button.click()
-        result = self.dialog.result()
-        self.assertEqual(result, QDialog.Rejected)
+    def test_etp_hargreaves(self):
+        forma = (len(dm.meses()), dm.FILAS, dm.COLUMNAS)
+        tmin = np.full(forma, 22.0, dtype=np.float32)
+        tmax = np.full(forma, 32.0, dtype=np.float32)
+        etp = dm.etp_hargreaves(tmin, tmax)
+        # En Casanare la ETP mensual con estas temperaturas está entre 100 y 200 mm
+        self.assertTrue(np.all((etp > 100) & (etp < 200)))
+
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(MyPlugin1DialogTest)
-    runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite)
-
+    unittest.main()

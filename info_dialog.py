@@ -6,8 +6,13 @@
  Ventana informativa para el plugin Casanare Data Extract
                              -------------------
         begin                : 2025-09-23
-        copyright            : (C) 2025 by Arnold Mesa
-        email                : arnoldjulianmesa@gmail.com
+        version              : 1.0.0
+        autores              : Arnold Julián Mesa Valcárcel
+                               Cristian Leandro Camargo Pinilla
+                               Ildefonso Narváez Ortiz
+        copyright            : (C) 2025 Universidad Internacional del
+                               Trópico Americano - Unitrópico
+        email                : ingsistemas@unitropico.edu.co
  ***************************************************************************/
 """
 
@@ -70,15 +75,16 @@ class InfoDialog(QtWidgets.QDialog):
         scroll_layout.addWidget(func_title)
         
         func_text = QtWidgets.QLabel("""
-Este plugin permite extraer y visualizar datos climáticos históricos del departamento de Casanare, Colombia.
+Este plugin permite consultar y visualizar series climáticas mensuales históricas (1981–2022) del departamento de Casanare, Colombia.
 
 Principales características:
-• Visualización interactiva: Mapa clickeable para seleccionar puntos de interés
-• 4 variables climáticas: Precipitación, temperatura mínima, máxima y evapotranspiración
-• Series temporales: Gráficos dinámicos con datos históricos
-• Exportación múltiple: Datos y gráficos en formatos CSV, Excel, PNG y PDF
-• Búsqueda por coordenadas: Ingreso manual de latitud y longitud
-• Filtrado temporal: Selección de rangos de años específicos
+• Descarga de datos: obtiene los datos directamente del servidor oficial de WorldClim y conserva solo el recorte de Casanare
+• Visualización interactiva: mapa clickeable para seleccionar puntos de interés
+• 4 variables climáticas: precipitación, temperatura mínima, máxima y evapotranspiración potencial
+• Series temporales: gráficos dinámicos con datos históricos
+• Exportación múltiple: datos y gráficos en formatos CSV, Excel, PNG y PDF
+• Búsqueda por coordenadas: ingreso manual de longitud y latitud
+• Filtrado temporal: selección de rangos de años específicos
         """)
         func_text.setWordWrap(True)
         func_text.setStyleSheet("margin: 0 20px; line-height: 1.4;")
@@ -91,20 +97,27 @@ Principales características:
         scroll_layout.addWidget(data_title)
         
         data_text = QtWidgets.QLabel("""
-<b>Origen:</b> WorldClim - Global Climate Data
-<b>Website:</b> <a href="https://worldclim.org/" style="color: #1976D2;">https://worldclim.org/</a>
-
-<b>Especificaciones técnicas:</b>
-• <b>Año base:</b> 1980
-• <b>Resolución espacial:</b> ~1km² (30 arc-seconds)
-• <b>Cobertura:</b> Departamento de Casanare, Colombia
-• <b>Formato original:</b> Archivos raster (.tif)
-
-<b>Variables incluidas:</b>
-• <b>Precipitación (PP):</b> Precipitación mensual promedio (mm)
-• <b>Temperatura mínima (TMIN):</b> Temperatura mínima mensual (°C)
-• <b>Temperatura máxima (TMAX):</b> Temperatura máxima mensual (°C)
-• <b>Evapotranspiración (ETP):</b> Evapotranspiración potencial (mm)
+<b>Origen:</b> WorldClim 2.1 – datos históricos mensuales (CRU-TS 4.09 reescalado con WorldClim 2.1)<br>
+<b>Sitio web:</b> <a href="https://www.worldclim.org/data/monthlywth.html" style="color: #1976D2;">https://www.worldclim.org/data/monthlywth.html</a><br>
+<br>
+<b>Especificaciones técnicas:</b><br>
+• <b>Periodo:</b> enero de 1981 a diciembre de 2022 (504 meses)<br>
+• <b>Resolución espacial:</b> 2.5 minutos de arco (≈4.6 km)<br>
+• <b>Cobertura:</b> departamento de Casanare, Colombia<br>
+• <b>Formato original:</b> GeoTIFF mensual global<br>
+<br>
+<b>Variables incluidas:</b><br>
+• <b>Precipitación (PP):</b> precipitación total mensual (mm)<br>
+• <b>Temperatura mínima (TMIN):</b> temperatura mínima media mensual (°C)<br>
+• <b>Temperatura máxima (TMAX):</b> temperatura máxima media mensual (°C)<br>
+• <b>Evapotranspiración (ETP):</b> evapotranspiración potencial mensual (mm), calculada por el plugin
+con el método de Hargreaves-Samani (FAO-56) a partir de TMIN y TMAX<br>
+<br>
+<b>Citas:</b><br>
+Fick, S.E. y R.J. Hijmans, 2017. WorldClim 2: new 1km spatial resolution climate surfaces for global
+land areas. International Journal of Climatology 37 (12): 4302-4315.<br>
+Harris, I., Osborn, T.J., Jones, P.D., Lister, D.H., 2020. Version 4 of the CRU TS monthly
+high-resolution gridded multivariate climate dataset. Scientific Data 7: 109.
         """)
         data_text.setWordWrap(True)
         data_text.setOpenExternalLinks(True)
@@ -118,14 +131,9 @@ Principales características:
         scroll_layout.addWidget(worldclim_title)
         
         worldclim_text = QtWidgets.QLabel("""
-WorldClim es una base de datos de variables climáticas globales de alta resolución espacial que se puede usar para mapeo y modelado espacial. Estos datos se pueden usar para mapeo y modelado espacial en un SIG o con otros programas informáticos.
+WorldClim es una base de datos de variables climáticas globales de alta resolución espacial que se puede usar para mapeo y modelado espacial en un SIG o con otros programas informáticos.
 
-Características de WorldClim:
-• Base de datos gratuita y de acceso libre
-• Cobertura global con alta resolución espacial
-• Datos interpolados de estaciones meteorológicas
-• Ampliamente utilizado en investigación científica
-• Actualizado regularmente con nuevos datos
+Condiciones de uso: los datos de WorldClim son de libre uso académico y no comercial; su redistribución o uso comercial requiere autorización previa de sus autores. Por esta razón el plugin no incluye los datos: cada usuario los descarga directamente desde WorldClim.
         """)
         worldclim_text.setWordWrap(True)
         worldclim_text.setStyleSheet("margin: 0 20px; line-height: 1.4;")
@@ -138,18 +146,20 @@ Características de WorldClim:
         scroll_layout.addWidget(tech_title)
         
         tech_text = QtWidgets.QLabel("""
-<b>Desarrollador:</b> Arnold Mesa
-<b>Email:</b> arnoldjulianmesa@gmail.com
-<b>Versión del plugin:</b> 1.0
-<b>Compatible with:</b> QGIS 3.0+
-<b>Lenguaje:</b> Python
-<b>Licencia:</b> GNU General Public License v2
-
-<b>Dependencias principales:</b>
-• NumPy: Manejo de arrays multidimensionales
-• Matplotlib: Generación de gráficos
-• Pandas: Manipulación de datos tabulares
-• QGIS API: Integración con la plataforma GIS
+<b>Autores:</b> Arnold Julián Mesa Valcárcel, Cristian Leandro Camargo Pinilla, Ildefonso Narváez Ortiz<br>
+<b>Titular:</b> Universidad Internacional del Trópico Americano – Unitrópico<br>
+<b>Grupo de investigación:</b> TICTRÓPICO<br>
+<b>Contacto:</b> ingsistemas@unitropico.edu.co<br>
+<b>Versión del plugin:</b> 1.0.0<br>
+<b>Compatible con:</b> QGIS 3.10 o superior<br>
+<b>Lenguaje:</b> Python<br>
+<b>Licencia:</b> GNU General Public License v2 o posterior<br>
+<br>
+<b>Dependencias principales:</b><br>
+• NumPy: manejo de arreglos multidimensionales<br>
+• Matplotlib: generación de gráficos<br>
+• Pandas: exportación de datos tabulares (Excel requiere además openpyxl)<br>
+• GDAL y API de QGIS: lectura de los GeoTIFF, descarga y tareas en segundo plano
         """)
         tech_text.setWordWrap(True)
         tech_text.setStyleSheet("margin: 0 20px; line-height: 1.4;")

@@ -1,12 +1,16 @@
 #/***************************************************************************
 # CasanareDataExtract
 #
-# Plugin para extraer y visualizar datos de Casanare
+# Plugin para extraer y visualizar datos climáticos de Casanare
 #							 -------------------
 #		begin				: 2025-06-18
-#		git sha				: $Format:%H$
-#		copyright			: (C) 2025 by Arnold Mesa
-#		email				: arnoldjulianmesa@gmail.com
+#		version              : 1.0.0
+#		autores              : Arnold Julián Mesa Valcárcel
+#                         Cristian Leandro Camargo Pinilla
+#                         Ildefonso Narváez Ortiz
+#		copyright            : (C) 2025 Universidad Internacional del
+#                         Trópico Americano - Unitrópico
+#		email				: ingsistemas@unitropico.edu.co
 # ***************************************************************************/
 #
 #/***************************************************************************
@@ -38,17 +42,17 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	MyPlugin.py MyPlugin_dialog.py
+	MyPlugin.py MyPlugin_dialog.py info_dialog.py data_manager.py
 
 PLUGINNAME = CasanareDataExtract
 
 PY_FILES = \
 	__init__.py \
-	MyPlugin.py MyPlugin_dialog.py
+	MyPlugin.py MyPlugin_dialog.py info_dialog.py data_manager.py
 
 UI_FILES = MyPlugin_dialog_base.ui
 
-EXTRAS = metadata.txt icon.png
+EXTRAS = metadata.txt icon.png casanare.png casanare_mask.npy LICENSE
 
 EXTRA_DIRS =
 

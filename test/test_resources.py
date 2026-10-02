@@ -8,9 +8,9 @@
 
 """
 
-__author__ = 'arnoldjulianmesa@gmail.com'
+__author__ = 'ingsistemas@unitropico.edu.co'
 __date__ = '2025-06-18'
-__copyright__ = 'Copyright 2025, Arnold Mesa'
+__copyright__ = 'Copyright 2025, Universidad Internacional del Trópico Americano - Unitrópico'
 
 import unittest
 
@@ -18,7 +18,7 @@ from qgis.PyQt.QtGui import QIcon
 
 
 
-class MyPlugin1DialogTest(unittest.TestCase):
+class CasanareDataExtractResourcesTest(unittest.TestCase):
     """Test rerources work."""
 
     def setUp(self):
@@ -30,13 +30,13 @@ class MyPlugin1DialogTest(unittest.TestCase):
         pass
 
     def test_icon_png(self):
-        """Test we can click OK."""
-        path = ':/plugins/MyPlugin1/icon.png'
+        """Test the plugin icon is available as a Qt resource."""
+        path = ':/plugins/CasanareDataExtract/icon.png'
         icon = QIcon(path)
         self.assertFalse(icon.isNull())
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(MyPlugin1ResourcesTest)
+    suite = unittest.makeSuite(CasanareDataExtractResourcesTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
 
