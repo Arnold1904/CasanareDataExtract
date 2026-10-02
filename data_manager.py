@@ -40,6 +40,7 @@ import calendar
 import math
 import os
 import struct
+import time
 import zlib
 from datetime import datetime
 
@@ -130,6 +131,68 @@ def cargar_datos(destino):
     return {v: np.load(ruta_variable(destino, v)) for v in VARIABLES}
 
 
+# --- Excel -----------------------------------------------------------------
+
+def escribir_xlsx(ruta, encabezados, filas):
+    """Escribe una hoja de Excel (.xlsx) mínima sin depender de openpyxl.
+
+    Los números se guardan como celdas numéricas y el resto como texto.
+    """
+    import zipfile
+    from xml.sax.saxutils import escape
+
+    def columna(i):
+        letras = ''
+        i += 1
+        while i:
+            i, r = divmod(i - 1, 26)
+            letras = chr(65 + r) + letras
+        return letras
+
+    def celda(valor, ref):
+        if isinstance(valor, (int, float, np.integer, np.floating)) and not (
+                isinstance(valor, (float, np.floating)) and math.isnan(valor)):
+            return '<c r="{}"><v>{}</v></c>'.format(ref, valor)
+        return '<c r="{}" t="inlineStr"><is><t>{}</t></is></c>'.format(ref, escape(str(valor)))
+
+    filas_xml = []
+    for n, fila in enumerate([encabezados] + [list(f) for f in filas], start=1):
+        celdas = ''.join(celda(v, '{}{}'.format(columna(i), n)) for i, v in enumerate(fila))
+        filas_xml.append('<row r="{}">{}</row>'.format(n, celdas))
+    hoja = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            '<sheetData>{}</sheetData></worksheet>').format(''.join(filas_xml))
+    archivos = {
+        '[Content_Types].xml': (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            '<Default Extension="xml" ContentType="application/xml"/>'
+            '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+            '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            '</Types>'),
+        '_rels/.rels': (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            '</Relationships>'),
+        'xl/workbook.xml': (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            '<sheets><sheet name="Datos" sheetId="1" r:id="rId1"/></sheets></workbook>'),
+        'xl/_rels/workbook.xml.rels': (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            '</Relationships>'),
+        'xl/worksheets/sheet1.xml': hoja,
+    }
+    with zipfile.ZipFile(ruta, 'w', zipfile.ZIP_DEFLATED) as z:
+        for nombre, contenido in archivos.items():
+            z.writestr(nombre, contenido)
+
+
 # --- ETP -------------------------------------------------------------------
 
 def radiacion_extraterrestre(lat, dia_juliano):
@@ -209,29 +272,46 @@ def descargar_rango_qgis(url, rango):
     solicitud = QNetworkRequest(QUrl(url))
     solicitud.setRawHeader(b'Range', rango.encode('ascii'))
     # No guardar los archivos globales en la caché de red de QGIS
-    solicitud.setAttribute(QNetworkRequest.CacheSaveControlAttribute, False)
+    solicitud.setAttribute(QNetworkRequest.Attribute.CacheSaveControlAttribute, False)
     peticion = QgsBlockingNetworkRequest()
-    if peticion.get(solicitud, True) != QgsBlockingNetworkRequest.NoError:
+    if peticion.get(solicitud, True) != QgsBlockingNetworkRequest.ErrorCode.NoError:
         raise IOError(peticion.errorMessage())
     return bytes(peticion.reply().content())
 
 
 def leer_ventana_gdal(contenido_tif):
     """Lee la ventana de Casanare de un GeoTIFF global en memoria."""
+    import contextlib
     from osgeo import gdal
+    # Excepciones de GDAL solo dentro de este bloque, sin cambiar la configuración global de QGIS
+    excepciones = gdal.ExceptionMgr(useExceptions=True) if hasattr(gdal, 'ExceptionMgr') else contextlib.nullcontext()
     ruta = '/vsimem/casanare_{}.tif'.format(id(contenido_tif))
-    gdal.FileFromMemBuffer(ruta, contenido_tif)
-    try:
-        dataset = gdal.Open(ruta)
-        banda = dataset.GetRasterBand(1)
-        ventana = banda.ReadAsArray(COLUMNA_INICIO, FILA_INICIO, COLUMNAS, FILAS).astype(np.float32)
-        sin_dato = banda.GetNoDataValue()
-        if sin_dato is not None:
-            ventana[ventana == np.float32(sin_dato)] = np.nan
-        dataset = None
-    finally:
-        gdal.Unlink(ruta)
+    with excepciones:
+        gdal.FileFromMemBuffer(ruta, contenido_tif)
+        try:
+            dataset = gdal.Open(ruta)
+            banda = dataset.GetRasterBand(1)
+            ventana = banda.ReadAsArray(COLUMNA_INICIO, FILA_INICIO, COLUMNAS, FILAS).astype(np.float32)
+            sin_dato = banda.GetNoDataValue()
+            if sin_dato is not None:
+                ventana[ventana == np.float32(sin_dato)] = np.nan
+            dataset = None
+        finally:
+            gdal.Unlink(ruta)
     return ventana
+
+
+def con_reintentos(descargar_rango, intentos=6, espera=10, cancelado=None):
+    """Reintenta una descarga ante fallas temporales de red (espera creciente entre intentos)."""
+    def envoltura(url, rango):
+        for intento in range(intentos):
+            try:
+                return descargar_rango(url, rango)
+            except IOError:
+                if intento == intentos - 1 or (cancelado and cancelado()):
+                    raise
+                time.sleep(espera * (intento + 1))
+    return envoltura
 
 
 def descargar_datos(destino, descargar_rango=descargar_rango_qgis, leer_ventana=leer_ventana_gdal,
@@ -243,6 +323,7 @@ def descargar_datos(destino, descargar_rango=descargar_rango_qgis, leer_ventana=
     Devuelve True si terminó, False si fue cancelada.
     """
     parciales = os.path.join(destino, 'parciales')
+    descargar_rango = con_reintentos(descargar_rango, cancelado=cancelado)
     os.makedirs(parciales, exist_ok=True)
     lista_meses = meses()
     total = len(VARIABLES_WORLDCLIM) * len(lista_meses)

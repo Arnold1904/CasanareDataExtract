@@ -30,7 +30,7 @@ class InfoDialog(QtWidgets.QDialog):
         """Configurar la interfaz de usuario"""
         self.setObjectName("InfoDialog")
         self.setWindowTitle("Información del Plugin - Casanare Data Extract")
-        self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowMaximizeButtonHint | Qt.WindowType.WindowMinimizeButtonHint)
         self.resize(700, 500)
         
         # Layout principal
@@ -48,7 +48,7 @@ class InfoDialog(QtWidgets.QDialog):
         title_font.setPointSize(16)
         title_font.setBold(True)
         title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("color: #2E7D32; margin: 10px;")
         scroll_layout.addWidget(title_label)
         
@@ -58,14 +58,14 @@ class InfoDialog(QtWidgets.QDialog):
         subtitle_font.setPointSize(12)
         subtitle_font.setItalic(True)
         subtitle_label.setFont(subtitle_font)
-        subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subtitle_label.setStyleSheet("color: #666; margin-bottom: 20px;")
         scroll_layout.addWidget(subtitle_label)
         
         # Separador
         line = QtWidgets.QFrame()
-        line.setFrameShape(QtWidgets.QFrame.HLine)
-        line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
+        line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
         scroll_layout.addWidget(line)
         
         # Sección: Funcionalidad del Plugin
@@ -151,14 +151,14 @@ Condiciones de uso: los datos de WorldClim son de libre uso académico y no come
 <b>Grupo de investigación:</b> TICTRÓPICO<br>
 <b>Contacto:</b> ingsistemas@unitropico.edu.co<br>
 <b>Versión del plugin:</b> 1.0.0<br>
-<b>Compatible con:</b> QGIS 3.10 o superior<br>
+<b>Compatible con:</b> QGIS 3.10 o superior, incluido QGIS 4 (probado en QGIS 3.44 LTR y 4.2)<br>
 <b>Lenguaje:</b> Python<br>
 <b>Licencia:</b> GNU General Public License v2 o posterior<br>
 <br>
 <b>Dependencias principales:</b><br>
 • NumPy: manejo de arreglos multidimensionales<br>
 • Matplotlib: generación de gráficos<br>
-• Pandas: exportación de datos tabulares (Excel requiere además openpyxl)<br>
+• Pandas: exportación de datos tabulares<br>
 • GDAL y API de QGIS: lectura de los GeoTIFF, descarga y tareas en segundo plano
         """)
         tech_text.setWordWrap(True)

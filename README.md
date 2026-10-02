@@ -16,7 +16,7 @@ Los datos climáticos **no se incluyen** en el plugin: la licencia de WorldClim 
 
 ## Requisitos
 
-QGIS 3.10 o superior, con numpy, matplotlib y pandas (openpyxl para exportar a Excel).
+QGIS 3.10 o superior, incluido QGIS 4 (probado en QGIS 3.44 LTR y QGIS 4.2), con numpy, matplotlib y pandas, que vienen incluidos en QGIS. La exportación a Excel no requiere librerías adicionales.
 
 ## Autores
 

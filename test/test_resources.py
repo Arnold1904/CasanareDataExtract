@@ -14,6 +14,8 @@ __copyright__ = 'Copyright 2025, Universidad Internacional del Trópico American
 
 import unittest
 
+import os
+
 from qgis.PyQt.QtGui import QIcon
 
 
@@ -31,7 +33,7 @@ class CasanareDataExtractResourcesTest(unittest.TestCase):
 
     def test_icon_png(self):
         """Test the plugin icon is available as a Qt resource."""
-        path = ':/plugins/CasanareDataExtract/icon.png'
+        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icon.png')
         icon = QIcon(path)
         self.assertFalse(icon.isNull())
 

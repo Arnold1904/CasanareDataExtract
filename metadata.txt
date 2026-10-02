@@ -10,7 +10,7 @@ version=1.0.0
 author=Arnold Julián Mesa Valcárcel, Cristian Leandro Camargo Pinilla, Ildefonso Narváez Ortiz - Universidad Internacional del Trópico Americano (Unitrópico)
 email=ingsistemas@unitropico.edu.co
 
-about=Plugin desarrollado en el grupo de investigación TICTRÓPICO de Unitrópico (convocatoria interna CIG 04 de 2024). Descarga desde WorldClim 2.1 los datos históricos mensuales de precipitación, temperatura mínima y temperatura máxima (2.5 minutos de arco), conserva solo el recorte del departamento de Casanare y calcula la evapotranspiración potencial (Hargreaves-Samani). Permite seleccionar un punto en el mapa o por coordenadas, graficar la serie temporal en un rango de años y exportarla a CSV, Excel, PNG o PDF. Los datos climáticos no se incluyen en el plugin; se descargan una sola vez (aprox. 17 GB de tráfico, 35 MB en disco). Requiere numpy, matplotlib y pandas (openpyxl para Excel).
+about=Plugin desarrollado en el grupo de investigación TICTRÓPICO de Unitrópico (convocatoria interna CIG 04 de 2024). Descarga desde WorldClim 2.1 los datos históricos mensuales de precipitación, temperatura mínima y temperatura máxima (2.5 minutos de arco), conserva solo el recorte del departamento de Casanare y calcula la evapotranspiración potencial (Hargreaves-Samani). Permite seleccionar un punto en el mapa o por coordenadas, graficar la serie temporal en un rango de años y exportarla a CSV, Excel, PNG o PDF. Los datos climáticos no se incluyen en el plugin; se descargan una sola vez (aprox. 17 GB de tráfico, 35 MB en disco). Compatible con QGIS 3 y QGIS 4. Requiere numpy, matplotlib y pandas, incluidos en QGIS.
 
 tracker=https://github.com/Arnold1904/CasanareDataExtract/issues
 repository=https://github.com/Arnold1904/CasanareDataExtract
@@ -40,3 +40,6 @@ deprecated=False
 
 # If the plugin can run on QGIS Server.
 server=False
+
+# Compatible con QGIS 4 (Qt6)
+supportsQt6=True

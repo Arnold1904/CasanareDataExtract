@@ -227,7 +227,7 @@
          <item>
           <widget class="QPushButton" name="pushButton_info">
            <property name="text">
-            <string>ℹ️ Información</string>
+            <string>Información</string>
            </property>
            <property name="toolTip">
             <string>Mostrar información sobre el plugin y los datos</string>

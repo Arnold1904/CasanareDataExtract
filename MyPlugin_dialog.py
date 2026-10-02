@@ -31,7 +31,10 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+try:
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas  # Qt5 y Qt6
+except ImportError:
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas  # matplotlib < 3.5
 
 from qgis.core import QgsApplication, QgsTask
 from qgis.PyQt import uic
@@ -60,7 +63,7 @@ class TareaDescarga(QgsTask):
 
     def __init__(self, destino):
         super(TareaDescarga, self).__init__(
-            'Casanare Data Extract: descarga de datos WorldClim', QgsTask.CanCancel)
+            'Casanare Data Extract: descarga de datos WorldClim', QgsTask.Flag.CanCancel)
         self.destino = destino
         self.error = None
 
@@ -81,8 +84,8 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         super(CasanareDataExtractDialog, self).__init__(parent)
         self.setupUi(self)
         # Hacer el diálogo redimensionable y maximizable
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
-        self.resize(800, 600)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowType.WindowMaximizeButtonHint | QtCore.Qt.WindowType.WindowMinimizeButtonHint)
+        self.resize(1000, 800)
 
         self.datos = None
         self.tarea = None
@@ -108,7 +111,8 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         self.scroll_grafica = QtWidgets.QScrollArea()
         self.scroll_grafica.setWidget(self.canvas)
         self.scroll_grafica.setWidgetResizable(True)
-        self.scroll_grafica.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.scroll_grafica.setMinimumHeight(300)  # espacio para las etiquetas de fecha
+        self.scroll_grafica.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.layout().addWidget(self.scroll_grafica)
         self.label_grafica.hide()  # Ocultar QLabel, usar canvas
 
@@ -124,10 +128,10 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         descarga_layout = QtWidgets.QVBoxLayout(self.panel_descarga)
         descarga_layout.setContentsMargins(0, 0, 0, 0)
         self.label_descarga = QtWidgets.QLabel(
-            'Los datos climáticos no se incluyen con el plugin. Descárguelos una vez '
-            'desde WorldClim (≈17 GB de tráfico; solo se guarda el recorte de Casanare, ≈35 MB). '
-            'La descarga puede interrumpirse y reanudarse.')
+            'Descargue una sola vez los datos de WorldClim '
+            '(≈17 GB de tráfico, ≈35 MB en disco). Puede interrumpir y reanudar la descarga.')
         self.label_descarga.setWordWrap(True)
+        self.label_descarga.setMinimumHeight(self.label_descarga.fontMetrics().lineSpacing() * 4)
         self.pushButton_descargar = QtWidgets.QPushButton('Descargar datos de WorldClim')
         self.progress_descarga = QtWidgets.QProgressBar()
         self.progress_descarga.setRange(0, 100)
@@ -170,6 +174,7 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         else:
             self._habilitar_controles(False)
             self.label_map.setText('Descargue los datos para ver el mapa')
+            self._update_plot()
 
     # --- Datos ---------------------------------------------------------------
 
@@ -251,7 +256,7 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         var_name, units, fechas, serie = seleccion
         df = pd.DataFrame({
             'Fecha': [f.strftime('%Y-%m') for f in fechas],
-            f'{var_name} ({units})': np.round(serie, 2),
+            f'{var_name} ({units})': np.round(serie.astype(float), 2),
             'Longitud': [round(self.selected_coords[0], 4)] * len(serie),
             'Latitud': [round(self.selected_coords[1], 4)] * len(serie),
             'Pixel_X': [self.selected_px] * len(serie),
@@ -343,11 +348,12 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         )
         if filename:
             try:
-                df.to_excel(filename, index=False)
+                try:
+                    df.to_excel(filename, index=False)
+                except ImportError:
+                    # QGIS no siempre incluye openpyxl: se usa el escritor propio
+                    dm.escribir_xlsx(filename, list(df.columns), df.itertuples(index=False))
                 QtWidgets.QMessageBox.information(self, "Éxito", f"Datos exportados correctamente a:\n{filename}")
-            except ImportError:
-                QtWidgets.QMessageBox.critical(
-                    self, "Error", "La exportación a Excel requiere la librería openpyxl, que no está instalada en QGIS")
             except Exception as e:
                 QtWidgets.QMessageBox.critical(self, "Error", f"No se pudo exportar el archivo Excel:\n{str(e)}")
 
@@ -394,7 +400,7 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
         """Muestra la ventana de información del plugin"""
         try:
             info_dialog = InfoDialog(self)
-            info_dialog.exec_()
+            info_dialog.exec()
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Error", f"No se pudo abrir la ventana de información:\n{str(e)}")
 
@@ -419,13 +425,13 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
             rgb_array[mask_valid] = (cmap(0.15 + 0.85 * arr_norm)[:, :3] * 255).astype(np.uint8)
         rgb_array[~mask_valid] = [0, 0, 0]
         rgb_array = np.ascontiguousarray(rgb_array)
-        qimg = QImage(rgb_array.data, w, h, w * 3, QImage.Format_RGB888)
+        qimg = QImage(rgb_array.data, w, h, w * 3, QImage.Format.Format_RGB888)
         pixmap = QPixmap.fromImage(qimg).scaled(self.label_map.width(), self.label_map.height())
 
         # Dibuja el punto rojo si hay selección
         if self.selected_px is not None and self.selected_py is not None:
             painter = QPainter(pixmap)
-            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             painter.setPen(QColor(0, 0, 0, 255))  # Borde negro
             painter.setBrush(QColor(255, 0, 0, 255))  # Relleno rojo
             # Centro de la celda seleccionada en el pixmap
@@ -451,8 +457,9 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
     def _on_map_click(self, event):
         if self.datos is None:
             return
-        px = min(int(event.pos().x() / self.label_map.width() * dm.COLUMNAS), dm.COLUMNAS - 1)
-        py = min(int(event.pos().y() / self.label_map.height() * dm.FILAS), dm.FILAS - 1)
+        pos = event.position() if hasattr(event, 'position') else event.pos()  # Qt6 / Qt5
+        px = min(int(pos.x() / self.label_map.width() * dm.COLUMNAS), dm.COLUMNAS - 1)
+        py = min(int(pos.y() / self.label_map.height() * dm.FILAS), dm.FILAS - 1)
         self._seleccionar_celda(py, px)
 
     def _buscar_por_coordenadas(self):
@@ -471,7 +478,8 @@ class CasanareDataExtractDialog(QtWidgets.QDialog, FORM_CLASS):
     def _update_plot(self):
         self.ax.clear()
         if self.datos is None or self.selected_px is None:
-            self.ax.text(0.5, 0.5, 'Seleccione un punto en el mapa', ha='center', va='center')
+            texto = 'Seleccione un punto en el mapa' if self.datos is not None else 'Descargue los datos para ver la gráfica'
+            self.ax.text(0.5, 0.5, texto, ha='center', va='center')
             self.canvas.draw()
             return
         seleccion = self._serie_seleccionada()
